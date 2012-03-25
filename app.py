@@ -15,8 +15,7 @@ urls = [
 	(r"/auth/register", handlers.RegisterHandler),
 	(r"/auth/login", handlers.LoginHandler),
 	(r"/auth/logout", handlers.LogoutHandler),
-	(r"/auth/twitter",handlers.TwitterHandler),
-    (r"/auth/twitter/",handlers.TwitterHandler),
+	(r"/auth/twitter/?",handlers.TwitterHandler),
 	(r"/api", handlers.ApiHandler),
 	(r"/p/(?P<picture>.*)", handlers.PictureHandler),
 	(r"/(?P<username>.*)", handlers.UserHandler),
@@ -28,8 +27,9 @@ settings = dict({
 	"cookie_secret": "ösaOPU)=()(/=+TY=0m552â§ªâªâª»“€0H/()/^)(=h0JKjô←←jhAHODF8*))",
 	"login_url": "/auth/login",
 	"xsrf_cookies": True,
-    "twitter_consumer_key": "key",
-    "twitter_consumer_secret": "secret"
+    "twitter_consumer_key": "",
+    "twitter_consumer_secret": "",
+    "site_url":"http://localhost:18888"
 })
 
 application = tornado.web.Application(urls,**settings)

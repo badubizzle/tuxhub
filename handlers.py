@@ -69,16 +69,17 @@ class PictureHandler(BaseHandler):
 
 class TwitterHandler(BaseHandler,tornado.auth.TwitterMixin):
     @tornado.web.asynchronous
+    @tornado.web.addslash
     def get(self):
         if self.get_argument("oauth_token", None):
             self.get_authenticated_user(self.async_callback(self._on_auth))
             return
-        self.authorize_redirect()
+        self.authorize_redirect(self.settings["site_url"]+"/auth/twitter")
 
     def _on_auth(self, user):
         if not user:
             raise tornado.web.HTTPError(500, "Twitter auth failed")
-        self.render("twitter_auth.html",user)
+        self.render("twitter_auth.html",user=user)
         #username = user["username"]
         #profile_image_url = user["profile_image_url_https"]
         #description = user["description"]
