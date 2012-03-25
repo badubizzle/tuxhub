@@ -4,7 +4,6 @@
 import tornado.web
 import tornado.httpserver
 import tornado.ioloop
-import tornado.escape
 import tornado.options
 from tornado.options import define, options
 import handlers, os
@@ -24,7 +23,8 @@ urls = [
 settings = dict({
 	"template_path": os.path.join(os.path.dirname(__file__),"templates"),
 	"static_path": os.path.join(os.path.dirname(__file__),"static"),
-	"cookie_secret": "ösaOPU)=()(/=+TY=0m552â§ªâªâª»“€0H/()/^)(=h0JKjô←←jhAHODF8*))"
+	"cookie_secret": "ösaOPU)=()(/=+TY=0m552â§ªâªâª»“€0H/()/^)(=h0JKjô←←jhAHODF8*))",
+	"login_url": "/login"
 })
 
 application = tornado.web.Application(urls,**settings)
