@@ -45,7 +45,7 @@ class LoginHandler(BaseHandler):
 class LogoutHandler(BaseHandler):
 	@tornado.web.authenticated
 	def get(self):
-	    self.set_secure_cookie("current_user","")
+	    self.clear_cookie("current_user")
 
 class ApiHandler(BaseHandler):
 	def get(self):
