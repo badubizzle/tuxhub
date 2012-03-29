@@ -27,7 +27,7 @@ settings = dict({
     "static_path": os.path.join(os.path.dirname(__file__),"static"),
     "cookie_secret": "ösaOPU)=()(/=+TY=0m552â§ªâªâª»“€0H/()/^)(=h0JKjô←←jhAHODF8*))",
     "login_url": "/auth/login",
-    #"xsrf_cookies": True,
+    "xsrf_cookies": True,
     "twitter_consumer_key": "",
     "twitter_consumer_secret": "",
     "site_url":"http://localhost:18888"

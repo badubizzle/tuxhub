@@ -1,0 +1,105 @@
+{% autoescape None %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Tuxhub | Register</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="{{ static_url('bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="navbar">
+        <div class="navbar-inner">
+          <div class="container">
+            <ul class="nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#">Profile</a></li>
+              <li><a href="#">Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="row-fluid">
+        <div class="span12">
+          <form class="form-horizontal" action="/auth/register" method="post" enctype="multipart/form-data">
+            {{ xsrf_form_html() }}
+            <fieldset>
+              <legend>Register</legend>
+                <div class="control-group">
+                  <label class="control-label" for="user_name">Username:</label>
+                  <div class="controls">
+                    <input type="text" name="user_name" class="input-xlarge" id="user_name">
+                    <p class="help-block"></p>
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <label class="control-label" for="password">Password:</label>
+                  <div class="controls">
+                    <input type="password" name="password" class="input-xlarge" id="password">
+                    <p class="help-block"></p>
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <label class="control-label" for="select01">Birth Day:</label>
+                  <div class="controls">
+                    <select name="day">
+                      {% for i in range(1,32) %}
+                        <option value="{{ i }}">{{ i }}</option>
+                      {% end %}
+                    </select>
+                    <select name="month">
+                      <option value="1">January</option>
+                      <option value="2">February</option>
+                      <option value="3">March</option>
+                      <option value="4">April</option>
+                      <option value="5">May</option>
+                      <option value="6">June</option>
+                      <option value="7">July</option>
+                      <option value="8">August</option>
+                      <option value="9">September</option>
+                      <option value="10">October</option>
+                      <option value="11">November</option>
+                      <option value="12">December</option>
+                    </select>
+                    <select name="year">
+                      {% for i in range(1900,2013) %}
+                        <option value="{{ i }}">{{ i }}</option>
+                      {% end %}
+                    </select>
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <label class="control-label" for="profile">Profile Picture:</label>
+                  <div class="controls">
+                    <input class="input-file" name="profile" id="profile" type="file">
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Register</button>
+                  <button class="btn">Cancel</button>
+                </div>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+
+<footer>Tuxhub 2012</footer>
+    </div><!--fluid container-->
+
+
+
+
+
+    <script src="{{ static_url('bootstrap/js/jquery.min.js') }}"></script>
+    <script src="{{ static_url('bootstrap/js/bootstrap.min.js') }}"></script>
+  </body>
+</html>
