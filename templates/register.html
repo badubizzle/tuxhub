@@ -26,10 +26,18 @@
       </div>
       <div class="row-fluid">
         <div class="span12">
-          <form class="form-horizontal" action="/auth/register" method="post" enctype="multipart/form-data">
+          <form id="register-form" class="form-horizontal" action="/auth/register" method="post" enctype="multipart/form-data">
             {{ xsrf_form_html() }}
             <fieldset>
               <legend>Register</legend>
+                <div class="control-group">
+                  <label class="control-label" for="name">Name:</label>
+                  <div class="controls">
+                    <input type="text" name="name" class="input-xlarge" id="name">
+                    <p class="help-block"></p>
+                  </div>
+                </div>
+
                 <div class="control-group">
                   <label class="control-label" for="user_name">Username:</label>
                   <div class="controls">
@@ -42,6 +50,22 @@
                   <label class="control-label" for="password">Password:</label>
                   <div class="controls">
                     <input type="password" name="password" class="input-xlarge" id="password">
+                    <p class="help-block"></p>
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <label class="control-label" for="confirm_password">Confirm password:</label>
+                  <div class="controls">
+                    <input type="password" name="confirm_password" class="input-xlarge" id="confirm_password">
+                    <p class="help-block"></p>
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <label class="control-label" for="mail">Mail:</label>
+                  <div class="controls">
+                    <input type="text" name="mail" class="input-xlarge" id="mail">
                     <p class="help-block"></p>
                   </div>
                 </div>
@@ -94,12 +118,10 @@
 
 <footer>Tuxhub 2012</footer>
     </div><!--fluid container-->
-
-
-
-
-
     <script src="{{ static_url('bootstrap/js/jquery.min.js') }}"></script>
     <script src="{{ static_url('bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ static_url('js/jquery.validate.js') }}"></script>
+    <script src="{{ static_url('js/main.js') }}"></script>
+    <script>validate_register();</script>
   </body>
 </html>

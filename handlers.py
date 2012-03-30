@@ -9,9 +9,7 @@ import pymongo,gridfs
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
-        #user = self.get_secure_cookie("current_user")
-        #user = '{"username":"doganaydin"}'
-        user = None # UNUTMA BURAYI
+        user = self.get_secure_cookie("current_user") or False
         if not user: return None
         return tornado.escape.json_decode(user)
 
@@ -45,7 +43,8 @@ class MainHandler(BaseHandler):
                 f.append(i)
             self.render("index_loggedin.html",feeds=f)
         else:
-            self.render("index.html")
+            self.write(str(self.get_secure_cookie("current_user")))
+            #self.render("index.html")
 
     def post(self):
         # Burada kontrol lazım.
@@ -75,6 +74,11 @@ class RegisterHandler(BaseHandler):
             self.redirect("/")
 
     def post(self):
+        if self.get_argument("name",False): name = self.get_argument("name")
+        else:
+            self.write("Name required")
+            return
+
         if self.get_argument("user_name",False): user_name = self.get_argument("user_name")
         else:
             self.write("Username required")
@@ -83,6 +87,15 @@ class RegisterHandler(BaseHandler):
         if self.get_argument("password",False): password = self.get_argument("password")
         else:
             self.write("Password required")
+            return
+
+        if self.get_argument("confirm_password",False):
+            confirm_password = self.get_argument("confirm_password")
+            if confirm_password != password:
+                self.write("Passwords not match")
+                return 
+        else:
+            self.write("Confirm Password required")
             return
 
         if self.get_argument("day",False): day = self.get_argument("day")
@@ -109,6 +122,7 @@ class RegisterHandler(BaseHandler):
 
         profile_image = "profile_images/{0}/{1}".format(user_name,file_name)
         user = dict(
+            name= name,
             user_name = user_name,
             password = password,
             birth_day = day +"/"+ month +"/"+ year,
@@ -126,14 +140,26 @@ class LoginHandler(BaseHandler):
             self.render("login.html")
         else:
             self.redirect("/")
+
     def post(self):
-        # Create secure cookie
-        pass
+        user_name = self.get_argument("user_name",False)
+        password = self.get_argument("password",False)
+        if user_name and password:
+            user = self.db.users.find_one({"user_name": user_name, "password": password},{"_id":0})
+            if user:
+                self.set_secure_cookie("current_user",tornado.escape.json_encode(user))
+                self.redirect("/")
+            else:
+                self.write("User is not exist. <a href='/auth/register'>Register?</a>")
+        else:
+            self.write("You must fill both username and password")
+
 
 class LogoutHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         self.clear_cookie("current_user")
+        self.redirect("/")
 
 class ApiHandler(BaseHandler):
     def get(self):
