@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Tuxhub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="{{ static_url('bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="navbar">
+        <div class="navbar-inner">
+          <div class="container">
+            <ul class="nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="/{{ current_user['user_name'] }}">Profile</a></li>
+              <li><a href="/auth/logout">Logout</a></li>
+            </ul>
+            <ul class="nav pull-right">
+              <li><a href="#">{{ current_user['name'] }}</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="row-fluid">
+
+        <div class="span8 well">
+          <form method="post" action="/">
+            <textarea name="feed" class="input-xxlarge" placeholder="Karala Bakalım" rows="6"></textarea>
+            <input type="checkbox" name="twitter" value="true">Twitter
+            <br><input type="submit" class="btn">
+          </form>
+        </div>
+
+        <div class="span3">
+          <div class="row-fluid">
+            <div class="span12" style="background-color:blue">sad</div>
+          </div>
+          <div class="row-fluid">
+            <div class="span12" style="background-color:yellow">sad</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!--fluid container-->
+    <footer>Tuxhub 2012</footer>
+    <script src="{{ static_url('bootstrap/js/jquery.min.js') }}"></script>
+    <script src="{{ static_url('bootstrap/js/bootstrap.min.js') }}"></script>
+  </body>
+</html>

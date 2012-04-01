@@ -167,7 +167,7 @@ class ApiHandler(BaseHandler):
 
 class UserHandler(BaseHandler):
     def get(self,username):
-        self.write(username)
+        pass
 
 class PictureHandler(BaseHandler):
     def get(self,picture):
@@ -194,3 +194,9 @@ class TwitterHandler(BaseHandler,tornado.auth.TwitterMixin):
         #url = user["url"]
         #access_token = user["access_token"]
         #oauth_token = self.get_argument("oauth_token",None)
+
+
+class ProfileHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        self.render("profile.html")
