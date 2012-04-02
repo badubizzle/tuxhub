@@ -6,6 +6,7 @@ import tornado.escape
 import tornado.auth
 import tornado.websocket
 import pymongo,gridfs
+from helpers import *
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
@@ -120,6 +121,11 @@ class RegisterHandler(BaseHandler):
             file_name = self.request.files["profile"][0]["filename"]
             file_body = self.request.files["profile"][0]["body"]
 
+        file_type = type_of(file_body)
+        if not file_type or type_of(file_body) not in ["png","jpeg"]:
+            self.write("Profile image must be png or jpeg")
+            return
+
         profile_image = "profile_images/{0}/{1}".format(user_name,file_name)
         user = dict(
             name= name,
@@ -129,7 +135,7 @@ class RegisterHandler(BaseHandler):
             profile = profile_image
         )
 
-        self.fs.put(file_body, filename=profile_image)
+        self.fs.put(file_body, filename=profile_image,content_type=file_type)
         self.db.users.save(user)
         self.redirect("/auth/login")
 
@@ -171,7 +177,13 @@ class UserHandler(BaseHandler):
 
 class PictureHandler(BaseHandler):
     def get(self,picture):
-        pass
+        profile = self.fs.get_last_version(picture)
+        if profile:
+            header = "image/%s" % profile.content_type
+            print profile.content_type
+            self.set_header("Content-Type",header)
+            self.write(profile.read())
+
 
 class TwitterHandler(BaseHandler,tornado.auth.TwitterMixin):
     @tornado.web.asynchronous
@@ -199,4 +211,5 @@ class TwitterHandler(BaseHandler,tornado.auth.TwitterMixin):
 class ProfileHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        self.render("profile.html")
+        user = self.current_user
+        self.render("profile.html",user=user)

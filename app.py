@@ -11,15 +11,29 @@ import handlers, os
 define("port",default=18888,type=int)
 
 urls = [
+    # main handler
     (r"/", handlers.MainHandler),
+
+    # auth
     (r"/auth/register", handlers.RegisterHandler),
     (r"/auth/login", handlers.LoginHandler),
     (r"/auth/logout", handlers.LogoutHandler),
     (r"/auth/twitter/?",handlers.TwitterHandler),
+
+    # api
     (r"/api", handlers.ApiHandler),
+
+    # websocket backend
     (r"/update",handlers.UpdateHandler),
+
+    # image server
     (r"/p/(?P<picture>.*)", handlers.PictureHandler),
-    (r"/(?P<username>.*)", handlers.UserHandler),
+
+    # my profile page
+    (r"/profile", handlers.ProfileHandler),
+
+    # other users profile page
+    (r"/(?P<username>.*)", handlers.UserHandler)
 ]
 
 settings = dict({
