@@ -38,7 +38,7 @@ class SocketBaseHandler(tornado.websocket.WebSocketHandler):
 class MainHandler(BaseHandler):
     def get(self):
         if self.current_user:
-            feeds = self.db.feeds.find({})
+            feeds = self.db.feeds.find({}).sort("_id",-1)
             f = []
             for i in feeds:
                 f.append(i)
@@ -49,20 +49,21 @@ class MainHandler(BaseHandler):
     def post(self):
         # Burada kontrol lazım.
         # feed json gelmeli {"user":"xx","message":"xyz","twitter":"true"}
-        feed = self.get_argument("feed")
-        self.db.feeds.save(tornado.escape.json_decode(feed))
-        self.write(feed)
+        feed = {"user":self.current_user["user_name"],"text":self.get_argument("feed")}
+        self.db.feeds.save(feed)
 
 class UpdateHandler(SocketBaseHandler):
     LISTENERS = []
     def open(self):
-        UpdateHandler.LISTENERS.append(self)
+        if self not in UpdateHandler.LISTENERS:
+            UpdateHandler.LISTENERS.append(self)
         self.write_message("Bağlandı %s" % str(self))
 
     def on_message(self,message):
         self.write_message("Dedi %s" % message)
 
     def on_close(self):
+        UpdateHandler.LISTENERS.remove(self)
         print "kapandı"
 
 

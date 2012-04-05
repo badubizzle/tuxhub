@@ -1,3 +1,4 @@
+{% autoescape None %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -7,7 +8,6 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <!-- Le styles -->
     <link href="{{ static_url('bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
   </head>
@@ -32,13 +32,14 @@
       <div class="row-fluid">
 
         <div class="span8 well">
-          <form method="post" action="/">
-            <textarea name="feed" class="input-xxlarge" placeholder="Karala Bakalım" rows="6"></textarea>
+          <form method="post" action="#" id="feed_form">
+            {{ xsrf_form_html() }}
+            <textarea id="feed" name="feed" class="input-xxlarge" placeholder="Karala Bakalım" rows="6"></textarea>
             <input type="checkbox" name="twitter" value="true">Twitter
-            <br><input type="submit" class="btn">
           </form>
+          <button id="submit" class="btn">Yaz gitsin</button>
         </div>
-
+        
         <div class="span3">
           <div class="row-fluid">
             <div class="span12" style="background-color:blue">sad</div>
@@ -47,26 +48,16 @@
             <div class="span12" style="background-color:yellow">sad</div>
           </div>
         </div>
+
+        <div class="span8" id="feeds">
+            {% for i in feeds %}
+                <div id="{{ i['_id'] }}" class="well">
+                    <div class="user"><b>{{ i['user'] }}: </b></div>
+                    <div class="feed_content">&nbsp;&nbsp;{{ i['text'] }}</div>
+                </div>
+            {% end %}
+        </div>
       </div>
-
-
-
-
-
-
-
-
-
-<script>
-var ws = new WebSocket("ws://localhost:18888/update");
-ws.onopen = function(){} // Soket açıldığında..
-ws.onmessage = function(m){} // Mesaj geldiğinde -> self.write_message()
-//ws.send("Aliiii"); Mesaj göndermek için
-</script>
-
-
-
-
 
 <footer>Tuxhub 2012</footer>
     </div><!--fluid container-->
@@ -77,5 +68,23 @@ ws.onmessage = function(m){} // Mesaj geldiğinde -> self.write_message()
 
     <script src="{{ static_url('bootstrap/js/jquery.min.js') }}"></script>
     <script src="{{ static_url('bootstrap/js/bootstrap.min.js') }}"></script>
+
+
+<script>
+var ws = new WebSocket("ws://localhost:18888/update");
+ws.onopen = function(){} // Soket açıldığında..
+ws.onmessage = function(m){
+    $("#feeds").html(m.data+$("#feeds").html());
+}
+$(document).ready(function(){
+
+    $("#feed_form").submit(function(e){ e.preventDefault(); return false; });
+    $("button#submit").click(function(){
+        $.post("/",$("#feed_form").serialize());
+        ws.send($("#feed").val());
+    });
+
+});
+</script>
   </body>
 </html>
