@@ -35,7 +35,9 @@
           User: {{ current_user["user_name"] }}<br>
           Name: {{ current_user["name"] }}<br>
           <img src="/p/{{ current_user['profile'] }}">
-          debug : {{ current_user }}
+          debug : {{ current_user }}<br>
+          user_info : {% for i in user["info"] %}{{i}}{% end %}<br>
+          feeds : {% for i in user["feeds"] %}{{i}}{% end %}
         </div>
 
         <div class="span3">

@@ -44,8 +44,7 @@ class MainHandler(BaseHandler):
                 f.append(i)
             self.render("index_loggedin.html",feeds=f)
         else:
-            self.write(str(self.get_secure_cookie("current_user")))
-            #self.render("index.html")
+            self.render("index.html")
 
     def post(self):
         # Burada kontrol lazım.
@@ -197,6 +196,7 @@ class TwitterHandler(BaseHandler,tornado.auth.TwitterMixin):
     def _on_auth(self, user):
         if not user:
             raise tornado.web.HTTPError(500, "Twitter auth failed")
+        self.db.save(user)
         self.render("twitter_auth.html",user=user)
         #username = user["username"]
         #profile_image_url = user["profile_image_url_https"]
@@ -211,5 +211,8 @@ class TwitterHandler(BaseHandler,tornado.auth.TwitterMixin):
 class ProfileHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        user = self.current_user
-        self.render("profile.html",user=user)
+        user = dict(
+            info = self.db.users.find({"user_name":self.current_user["user_name"]},{"_id":0}),
+            feeds = self.db.feeds.find({"user_name":self.current_user["user_name"]})
+        )
+        self.render("profile.html", user = user)
