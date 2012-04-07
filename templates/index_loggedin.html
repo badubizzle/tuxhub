@@ -81,7 +81,12 @@ $(document).ready(function(){
     $("#feed_form").submit(function(e){ e.preventDefault(); return false; });
     $("button#submit").click(function(){
         $.post("/",$("#feed_form").serialize());
-        ws.send($("#feed").val());
+        data = {
+            user_name: '{{ current_user["user_name"] }}',
+            feed: $("#feed").val()
+        }
+        console.log(data);
+        ws.send(JSON.stringify(data));
     });
 
 });

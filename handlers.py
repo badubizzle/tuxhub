@@ -27,6 +27,10 @@ class BaseHandler(tornado.web.RequestHandler):
         return _fs
 
 class SocketBaseHandler(tornado.websocket.WebSocketHandler):
+    def get_current_user(self):
+        user = self.get_secure_cookie("current_user") or False
+        if not user: return None
+        return tornado.escape.json_decode(user)
     @property 
     def db(self):
         if not hasattr(SocketBaseHandler,"_db"):
@@ -54,13 +58,22 @@ class MainHandler(BaseHandler):
 
 class UpdateHandler(SocketBaseHandler):
     LISTENERS = []
+    TEMPLATE = """
+    <div class="well">
+        <div class="user"><b>%s: </b></div>
+        <div class="feed_content">&nbsp;&nbsp;%s</div>
+    </div>
+    """
     def open(self):
         if self not in UpdateHandler.LISTENERS:
             UpdateHandler.LISTENERS.append(self)
-        self.write_message("Bağlandı %s" % str(self))
+        print "Bağlandı %s" % str(self)
 
     def on_message(self,message):
-        self.write_message("Dedi %s" % message)
+        for i in UpdateHandler.LISTENERS:
+            m = tornado.escape.json_decode(message)
+            t = UpdateHandler.TEMPLATE % (m["user_name"], m["feed"])
+            i.write_message("%s" % t)
 
     def on_close(self):
         UpdateHandler.LISTENERS.remove(self)
