@@ -52,7 +52,7 @@
         <div class="span8" id="feeds">
             {% for i in feeds %}
                 <div id="{{ i['_id'] }}" class="well">
-                    <div class="user"><b>{{ i['user'] }}: </b></div>
+                    <div class="user"><img width="80" height="80" src="/p/{{ i['profile'] }}"><b>{{ i['user'] }}: </b></div>
                     <div class="feed_content">&nbsp;&nbsp;{{ i['text'] }}</div>
                 </div>
             {% end %}

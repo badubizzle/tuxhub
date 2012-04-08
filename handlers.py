@@ -45,6 +45,8 @@ class MainHandler(BaseHandler):
             feeds = self.db.feeds.find({}).sort("_id",-1)
             f = []
             for i in feeds:
+                u = self.db.users.find_one({"user_name":i["user"]})
+                i["profile"] = u["profile"]
                 f.append(i)
             self.render("index_loggedin.html",feeds=f)
         else:
@@ -60,7 +62,7 @@ class UpdateHandler(SocketBaseHandler):
     LISTENERS = []
     TEMPLATE = """
     <div class="well">
-        <div class="user"><b>%s: </b></div>
+        <div class="user"><img width="80" height="80" src="/p/%s"><b>%s: </b></div>
         <div class="feed_content">&nbsp;&nbsp;%s</div>
     </div>
     """
@@ -69,10 +71,12 @@ class UpdateHandler(SocketBaseHandler):
             UpdateHandler.LISTENERS.append(self)
         print "Bağlandı %s" % str(self)
 
+    @tornado.web.authenticated
     def on_message(self,message):
         for i in UpdateHandler.LISTENERS:
             m = tornado.escape.json_decode(message)
-            t = UpdateHandler.TEMPLATE % (m["user_name"], m["feed"])
+            u = self.db.users.find_one({"user_name":m["user_name"]})
+            t = UpdateHandler.TEMPLATE % (u["profile"],m["user_name"], m["feed"])
             i.write_message("%s" % t)
 
     def on_close(self):
