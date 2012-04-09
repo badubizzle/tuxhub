@@ -7,6 +7,7 @@ import tornado.auth
 import tornado.websocket
 import pymongo,gridfs
 from helpers import *
+import datetime
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
@@ -55,14 +56,18 @@ class MainHandler(BaseHandler):
     def post(self):
         # Burada kontrol lazım.
         # feed json gelmeli {"user":"xx","message":"xyz","twitter":"true"}
-        feed = {"user":self.current_user["user_name"],"text": linkify(self.get_argument("feed"))}
+        feed = {
+            "user":self.current_user["user_name"],
+            "text": linkify(self.get_argument("feed")),
+            "time": self.get_argument("time")
+        }
         self.db.feeds.save(feed)
 
 class UpdateHandler(SocketBaseHandler):
     LISTENERS = []
     TEMPLATE = """
     <div class="well">
-        <div class="user"><img width="50" height="50" src="/p/%s"><b>%s: </b></div>
+        <div class="user"><img width="50" height="50" src="/p/%s"><b>%s: </b> (%s)</div>
         <div class="feed_content">&nbsp;&nbsp;%s</div>
     </div>
     """
@@ -76,7 +81,7 @@ class UpdateHandler(SocketBaseHandler):
         for i in UpdateHandler.LISTENERS:
             m = tornado.escape.json_decode(message)
             u = self.db.users.find_one({"user_name":m["user_name"]})
-            t = UpdateHandler.TEMPLATE % (u["profile"],m["user_name"], linkify(m["feed"]))
+            t = UpdateHandler.TEMPLATE % (u["profile"], m["user_name"], m["time"], linkify(m["feed"]))
             i.write_message("%s" % t)
 
     def on_close(self):

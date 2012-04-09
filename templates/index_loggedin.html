@@ -10,6 +10,9 @@
 
     <link href="{{ static_url('bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    <script src="{{ static_url('bootstrap/js/jquery.min.js') }}"></script>
+    <script src="{{ static_url('js/jquery.timeago.js') }}"></script>
+    <script src="{{ static_url('bootstrap/js/bootstrap.min.js') }}"></script>
   </head>
 
   <body>
@@ -35,6 +38,7 @@
           <form method="post" action="#" id="feed_form">
             {{ xsrf_form_html() }}
             <textarea id="feed" name="feed" class="input-xxlarge" placeholder="Karala Bakalım" rows="6"></textarea>
+            <input type="hidden" id="time" name="time" value="">
             <input type="checkbox" name="twitter" value="true">Twitter
           </form>
           <button id="submit" class="btn">Yaz gitsin</button>
@@ -52,7 +56,7 @@
         <div class="span8" id="feeds">
             {% for i in feeds %}
                 <div id="{{ i['_id'] }}" class="well">
-                    <div class="user"><img width="50" height="50" src="/p/{{ i['profile'] }}"><b>{{ i['user'] }}: </b></div>
+                    <div class="user"><img width="50" height="50" src="/p/{{ i['profile'] }}"><b>{{ i['user'] }}: </b> (<script>document.write($.timeago("{{i['time']}}"));</script>)</div>
                     <div class="feed_content">&nbsp;&nbsp;{{ i['text'] }}</div>
                 </div>
             {% end %}
@@ -61,14 +65,6 @@
 
 <footer>Tuxhub 2012</footer>
     </div><!--fluid container-->
-
-
-
-
-
-    <script src="{{ static_url('bootstrap/js/jquery.min.js') }}"></script>
-    <script src="{{ static_url('bootstrap/js/bootstrap.min.js') }}"></script>
-
 
 <script>
 var ws = new WebSocket("ws://localhost:18888/update");
@@ -80,10 +76,12 @@ $(document).ready(function(){
 
     $("#feed_form").submit(function(e){ e.preventDefault(); return false; });
     $("button#submit").click(function(){
+        $("#time").val(new Date().toISOString());
         $.post("/",$("#feed_form").serialize());
         data = {
             user_name: '{{ current_user["user_name"] }}',
-            feed: $("#feed").val()
+            feed: $("#feed").val(),
+            time: (new Date()).toISOString()
         }
         console.log(data);
         ws.send(JSON.stringify(data));
