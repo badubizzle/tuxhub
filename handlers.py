@@ -67,13 +67,12 @@ class UpdateHandler(SocketBaseHandler):
     LISTENERS = []
     TEMPLATE = """
     <div class="well">
-        <div class="user"><img width="50" height="50" src="/p/%s"><b>%s: </b> (%s)</div>
+        <div class="user"><img width="50" height="50" src="/p/%s"><b>%s: </b> (<span class="timeago">%s</span>)</div>
         <div class="feed_content">&nbsp;&nbsp;%s</div>
     </div>
     """
     def open(self):
-        if self not in UpdateHandler.LISTENERS:
-            UpdateHandler.LISTENERS.append(self)
+        UpdateHandler.LISTENERS.append(self)
         print "Bağlandı %s" % str(self)
 
     @tornado.web.authenticated
