@@ -239,3 +239,20 @@ class ProfileHandler(BaseHandler):
             feeds = self.db.feeds.find({"user_name":self.current_user["user_name"]})
         )
         self.render("profile.html", user = user)
+
+class FollowHandler(BaseHandler):
+    def get(self):
+        pass
+
+    def post(self):
+        who = self.get_argument("who",False)
+        action = self.get_argument("action","follow")
+        if action == "follow":
+            if who:
+                self.db.follow.save({"follower":self.current_user["user_name"],"followed":who})
+                self.write("OK")
+        elif action == "unfollow":
+            if who:
+                self.db.follow.remove({"follower":self.current_user["user_name"],"followed":who})
+                self.write("OK")
+        # CONTROL
