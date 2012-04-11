@@ -48,6 +48,7 @@ class MainHandler(BaseHandler):
             for i in feeds:
                 u = self.db.users.find_one({"user_name":i["user"]})
                 i["profile"] = u["profile"]
+                i["text"] = linkify(i["text"])
                 f.append(i)
             self.render("index_loggedin.html",feeds=f)
         else:

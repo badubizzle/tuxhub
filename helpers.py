@@ -18,4 +18,4 @@ def linkify(feed):
     mentions = regex.findall(feed)
     for i in mentions:
         feed = feed.replace(i,"<a href='/user/%s'>%s</a>" % (i.replace("@",""),i))
-    return tornado.escape.linkify(feed)
+    return tornado.escape.xhtml_unescape(tornado.escape.linkify(feed))

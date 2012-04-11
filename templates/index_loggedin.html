@@ -57,7 +57,7 @@
             {% for i in feeds %}
                 <div id="{{ i['_id'] }}" class="well">
                     <div class="user"><img width="50" height="50" src="/p/{{ i['profile'] }}"><b>{{ i['user'] }}: </b> (<span class="timeago">{{i['time']}}</span>)</div>
-                    <div class="feed_content">&nbsp;&nbsp;{{ i['text'] }}</div>
+                    <div class="feed_content">&nbsp;&nbsp;{% raw i['text'] %}</div>
                 </div>
             {% end %}
         </div>
