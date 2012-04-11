@@ -244,6 +244,7 @@ class FollowHandler(BaseHandler):
     def get(self):
         pass
 
+    @tornado.web.authenticated
     def post(self):
         who = self.get_argument("who",False)
         action = self.get_argument("action","follow")
@@ -254,5 +255,23 @@ class FollowHandler(BaseHandler):
         elif action == "unfollow":
             if who:
                 self.db.follow.remove({"follower":self.current_user["user_name"],"followed":who})
+                self.write("OK")
+        # CONTROL
+
+class BlockHandler(BaseHandler):
+    def get(self):
+        pass
+        
+    @tornado.web.authenticated
+    def post(self):
+        who = self.get_argument("who",False)
+        action = self.get_argument("action","block")
+        if action == "block":
+            if who:
+                self.db.block.save({"who_blocked":self.current_user["user_name"],"blocked":who})
+                self.write("OK")
+        elif action == "unblock":
+            if who:
+                self.db.follow.remove({"who_blocked":self.current_user["user_name"],"blocked":who})
                 self.write("OK")
         # CONTROL
