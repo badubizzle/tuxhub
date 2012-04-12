@@ -272,6 +272,6 @@ class BlockHandler(BaseHandler):
                 self.write("OK")
         elif action == "unblock":
             if who:
-                self.db.follow.remove({"who_blocked":self.current_user["user_name"],"blocked":who})
+                self.db.block.remove({"who_blocked":self.current_user["user_name"],"blocked":who})
                 self.write("OK")
         # CONTROL
