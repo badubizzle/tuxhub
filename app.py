@@ -32,6 +32,9 @@ urls = [
     # my profile page
     (r"/profile", handlers.ProfileHandler),
 
+    #follow & followers
+    (r"/follow",handlers.FollowHandler),
+
     # other users profile page
     (r"/(?P<username>.*)", handlers.UserHandler)
 ]

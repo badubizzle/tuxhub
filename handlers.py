@@ -244,10 +244,22 @@ class FollowHandler(BaseHandler):
         who = self.get_argument("who",False)
         _type = self.get_argument("type","followers")
         if who:
+            _f = {}
             if _type == "followers":
-                f = self.db.users.find({"followed":who})
+                _f = {"followers":[]}
+                f = self.db.follow.find({"followed":who},{"_id":0})
+                for i in f:
+                    _f["followers"].append(i["follower"])
+                _f["count"] = len(_f["followers"])
+
             if _type == "following":
-                f = self.db.users.find({"follower":who})
+                _f = {"following":[]}
+                f = self.db.follow.find({"follower":who},{"_id":0})
+                for i in f:
+                    _f["following"].append(i["followed"])
+                _f["count"] = len(_f["following"])
+
+            self.write(tornado.escape.json_encode(_f))
 
     @tornado.web.authenticated
     def post(self):
