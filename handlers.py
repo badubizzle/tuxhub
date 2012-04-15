@@ -26,6 +26,26 @@ class BaseHandler(tornado.web.RequestHandler):
             _fs = gridfs.GridFS(self.db)
         return _fs
 
+    def get_followed_users(self,username):
+        #    {"following": ["x_user", "y_user"], "count": 2}
+        #    {"count": 0}
+        f = self.db.follow.find_one({"follower":username},{"_id":0,"follower":0}) or {}
+        f["count"] = len(f.get("following",""))
+        return f
+
+    def get_followers(self,username):
+        #    {"count": 2, "followers": ["x_user", "y_user"]}
+        #    {"count": 0, "followers": []}
+
+        _f = self.db.follow.find({"following":username},{"_id":0,"following":0})
+        f = {"followers":[],"count":0}
+        for i in _f:
+            f["followers"].append(i["follower"])
+        f["count"] = len(f["followers"])
+        if f["count"] <= 0:
+            f.pop("followers")
+        return f
+
 class SocketBaseHandler(tornado.websocket.WebSocketHandler):
     def get_current_user(self):
         user = self.get_secure_cookie("current_user") or False
@@ -42,7 +62,10 @@ class SocketBaseHandler(tornado.websocket.WebSocketHandler):
 class MainHandler(BaseHandler):
     def get(self):
         if self.current_user:
-            feeds = self.db.feeds.find({}).sort("_id",-1)
+            following = self.get_followed_users(self.current_user["user_name"])["following"] or []
+            following.append(self.current_user["user_name"]) # add myself to list because i must see my feeds
+
+            feeds = self.db.feeds.find({"user":{"$in":following}}).sort("_id",-1)
             f = []
             for i in feeds:
                 u = self.db.users.find_one({"user_name":i["user"]})
@@ -241,37 +264,32 @@ class ProfileHandler(BaseHandler):
 
 class FollowHandler(BaseHandler):
     def get(self):
-        who = self.get_argument("who",False)
-        _type = self.get_argument("type","followers")
-        if who:
-            _f = {}
+        username = self.get_argument("username",False)
+        _type = self.get_argument("type",False)
+        if username and _type:
             if _type == "followers":
-                _f = {"followers":[]}
-                f = self.db.follow.find({"followed":who},{"_id":0})
-                for i in f:
-                    _f["followers"].append(i["follower"])
-                _f["count"] = len(_f["followers"])
+                f = self.get_followers(username)
 
             if _type == "following":
-                _f = {"following":[]}
-                f = self.db.follow.find({"follower":who},{"_id":0})
-                for i in f:
-                    _f["following"].append(i["followed"])
-                _f["count"] = len(_f["following"])
-
-            self.write(tornado.escape.json_encode(_f))
+                f = self.get_followed_users(username)
+               
+            self.write(tornado.escape.json_encode(f))
+        else:
+            self.write("ERROR")
 
     @tornado.web.authenticated
     def post(self):
-        who = self.get_argument("who",False)
-        action = self.get_argument("action","follow")
-        if who:
+        username = self.get_argument("username",False)
+        action = self.get_argument("action",False)
+        if username and action:
             if action == "follow":
-                self.db.follow.save({"follower":self.current_user["user_name"],"followed":who})
+                self.db.follow.update({"follower":self.current_user["user_name"]},{"$push":{"following":username}},True)
                 self.write("OK")
             elif action == "unfollow":
-                self.db.follow.remove({"follower":self.current_user["user_name"],"followed":who})
+                self.db.follow.update({"follower":self.current_user["user_name"]},{"$pull":{"following":username}},True)
                 self.write("OK")
+        else:
+            self.write("ERROR")
         # CONTROL
 
 class BlockHandler(BaseHandler):
