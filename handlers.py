@@ -7,7 +7,6 @@ import tornado.auth
 import tornado.websocket
 import pymongo,gridfs
 from helpers import *
-import datetime
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
@@ -242,18 +241,23 @@ class ProfileHandler(BaseHandler):
 
 class FollowHandler(BaseHandler):
     def get(self):
-        pass
+        who = self.get_argument("who",False)
+        _type = self.get_argument("type","followers")
+        if who:
+            if _type == "followers":
+                f = self.db.users.find({"followed":who})
+            if _type == "following":
+                f = self.db.users.find({"follower":who})
 
     @tornado.web.authenticated
     def post(self):
         who = self.get_argument("who",False)
         action = self.get_argument("action","follow")
-        if action == "follow":
-            if who:
+        if who:
+            if action == "follow":
                 self.db.follow.save({"follower":self.current_user["user_name"],"followed":who})
                 self.write("OK")
-        elif action == "unfollow":
-            if who:
+            elif action == "unfollow":
                 self.db.follow.remove({"follower":self.current_user["user_name"],"followed":who})
                 self.write("OK")
         # CONTROL
@@ -274,4 +278,4 @@ class BlockHandler(BaseHandler):
             if who:
                 self.db.block.remove({"who_blocked":self.current_user["user_name"],"blocked":who})
                 self.write("OK")
-        # CONTROL
+        # CONTROL 
