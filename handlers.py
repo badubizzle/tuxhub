@@ -26,6 +26,7 @@ class BaseHandler(tornado.web.RequestHandler):
             _fs = gridfs.GridFS(self.db)
         return _fs
 
+class Utility(object):
     def get_followed_users(self,username):
         #    {"following": ["x_user", "y_user"], "count": 2}
         #    {"count": 0}
@@ -59,10 +60,11 @@ class SocketBaseHandler(tornado.websocket.WebSocketHandler):
 
 # Sadece sayfa yüklenmelerinde ve post işlemlerinde.
 # Feed girmek için /update
-class MainHandler(BaseHandler):
+class MainHandler(BaseHandler,Utility):
     def get(self):
         if self.current_user:
-            following = self.get_followed_users(self.current_user["user_name"])["following"] or []
+            # bu listeyi cachele. Her mesajda sorgu yaparsa iki güne alırız makineyi elimize
+            following = self.get_followed_users(self.current_user["user_name"]).get("following",[])
             following.append(self.current_user["user_name"]) # add myself to list because i must see my feeds
 
             feeds = self.db.feeds.find({"user":{"$in":following}}).sort("_id",-1)
@@ -86,7 +88,7 @@ class MainHandler(BaseHandler):
         }
         self.db.feeds.save(feed)
 
-class UpdateHandler(SocketBaseHandler):
+class UpdateHandler(SocketBaseHandler,Utility):
     LISTENERS = []
     TEMPLATE = """
     <div class="well">
@@ -100,11 +102,21 @@ class UpdateHandler(SocketBaseHandler):
 
     @tornado.web.authenticated
     def on_message(self,message):
+        # bu listeyi cachele. Her mesajda sorgu yaparsa iki güne alırız makineyi elimize
+        following = self.get_followed_users(self.current_user["user_name"]).get("following",[])
+        following.append(self.current_user["user_name"])
+
         for i in UpdateHandler.LISTENERS:
             m = tornado.escape.json_decode(message)
-            u = self.db.users.find_one({"user_name":m["user_name"]})
-            t = UpdateHandler.TEMPLATE % (u["profile"], m["user_name"], m["time"], linkify(m["feed"]))
-            i.write_message("%s" % t)
+            if m["user_name"] in following:
+                print m["user_name"]
+                print following
+
+                u = self.db.users.find_one({"user_name":m["user_name"]})
+                t = UpdateHandler.TEMPLATE % (u["profile"], m["user_name"], m["time"], linkify(m["feed"]))
+                i.write_message("%s" % t)
+            else:
+                print "err"
 
     def on_close(self):
         UpdateHandler.LISTENERS.remove(self)
@@ -262,7 +274,7 @@ class ProfileHandler(BaseHandler):
         )
         self.render("profile.html", user = user)
 
-class FollowHandler(BaseHandler):
+class FollowHandler(BaseHandler,Utility):
     def get(self):
         username = self.get_argument("username",False)
         _type = self.get_argument("type",False)
