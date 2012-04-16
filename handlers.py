@@ -72,7 +72,6 @@ class MainHandler(BaseHandler,Utility):
             for i in feeds:
                 u = self.db.users.find_one({"user_name":i["user"]})
                 i["profile"] = u["profile"]
-                i["text"] = linkify(i["text"])
                 f.append(i)
             self.render("index_loggedin.html",feeds=f)
         else:
@@ -83,8 +82,8 @@ class MainHandler(BaseHandler,Utility):
         # feed json gelmeli {"user":"xx","message":"xyz","twitter":"true"}
         feed = {
             "user":self.current_user["user_name"],
-            "text": linkify(self.get_argument("feed")),
-            "time": self.get_argument("time")
+            "text":self.get_argument("feed"),
+            "time":self.get_argument("time")
         }
         self.db.feeds.save(feed)
 
@@ -109,11 +108,8 @@ class UpdateHandler(SocketBaseHandler,Utility):
         for i in UpdateHandler.LISTENERS:
             m = tornado.escape.json_decode(message)
             if m["user_name"] in following:
-                print m["user_name"]
-                print following
-
                 u = self.db.users.find_one({"user_name":m["user_name"]})
-                t = UpdateHandler.TEMPLATE % (u["profile"], m["user_name"], m["time"], linkify(m["feed"]))
+                t = UpdateHandler.TEMPLATE % (u["profile"], m["user_name"], m["time"], tornado.escape.xhtml_escape(m["feed"]))
                 i.write_message("%s" % t)
             else:
                 print "err"

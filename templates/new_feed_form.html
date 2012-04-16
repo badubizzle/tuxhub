@@ -1,0 +1,9 @@
+<div class="span8 well">
+	<form method="post" action="#" id="feed_form" onSubmit="return false;">
+		{% raw xsrf_form_html() %}
+		<textarea id="feed" name="feed" class="input-xxlarge" placeholder="Karala Bakalım" rows="6"></textarea>
+        <input type="hidden" id="time" name="time" value="">
+        <input type="checkbox" name="twitter" value="true">Twitter
+    </form>
+    <button id="submit" class="btn" onclick="javascript:return false;">Yaz gitsin</button>
+</div>

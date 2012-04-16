@@ -12,10 +12,3 @@ def type_of(content):
         return i.format.lower()
     except IOError:
         return False
-
-def linkify(feed):
-    regex = re.compile("\@[a-zA-Z0-9_]+",re.IGNORECASE)
-    mentions = regex.findall(feed)
-    for i in mentions:
-        feed = feed.replace(i,"<a href='/user/%s'>%s</a>" % (i.replace("@",""),i))
-    return tornado.escape.xhtml_unescape(tornado.escape.linkify(feed))
