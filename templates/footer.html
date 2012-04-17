@@ -23,6 +23,7 @@ $(document).ready(function(){
             	time: $.timeago((new Date()).toISOString())
         	}
         	ws.send(JSON.stringify(data));
+        	$("#feed").val("");
         });
        
         return false;

@@ -19,9 +19,7 @@ urls = [
     (r"/auth/login", handlers.LoginHandler),
     (r"/auth/logout", handlers.LogoutHandler),
     (r"/auth/twitter/?",handlers.TwitterHandler),
-
-    # api
-    (r"/api", handlers.ApiHandler),
+ 
 
     # websocket backend
     (r"/update",handlers.UpdateHandler),
@@ -33,10 +31,13 @@ urls = [
     (r"/profile", handlers.ProfileHandler),
 
     #follow & followers
-    (r"/follow",handlers.FollowHandler),
+    (r"/api/follow",handlers.FollowHandler),
 
     #block & unblock
-    (r"/block",handlers.BlockHandler),
+    (r"/api/block",handlers.BlockHandler),
+
+    #like & unlike
+    (r"/api/like",handlers.LikeHandler),
 
     # other users profile page
     (r"/(?P<username>.*)", handlers.UserHandler)

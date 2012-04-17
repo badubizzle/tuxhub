@@ -322,31 +322,26 @@ class BlockHandler(BaseHandler):
             self.write("ERROR")
         # CONTROL 
 
-class LikeHandler(BaseHandler,Utility):
+class LikeHandler(BaseHandler):
     def get(self):
-        username = self.get_argument("username",False)
-        _type = self.get_argument("type",False)
-        if username and _type:
-            if _type == "followers":
-                f = self.get_followers(username)
-
-            if _type == "following":
-                f = self.get_followed_users(username)
-               
-            self.write(tornado.escape.json_encode(f))
+        feed_id = self.get_argument("feed_id",False)
+        if feed_id:
+            likers = self.db.likes.find_one({"feed_id":feed_id},{"_id":0})
+            self.write(tornado.escape.json_encode(likers))
         else:
             self.write("ERROR")
 
     @tornado.web.authenticated
     def post(self):
-        username = self.get_argument("username",False)
+        feed_id = self.get_argument("feed_id",False)
         action = self.get_argument("action",False)
-        if username and action:
-            if action == "follow":
-                self.db.follow.update({"follower":self.current_user["user_name"]},{"$push":{"following":username}},True)
+
+        if feed_id and action:
+            if action == "like":
+                self.db.likes.update({"feed_id":feed_id},{"$push":{"username":self.current_user["user_name"]}},True)
                 self.write("OK")
-            elif action == "unfollow":
-                self.db.follow.update({"follower":self.current_user["user_name"]},{"$pull":{"following":username}},True)
+            elif action == "unlike":
+                self.db.likes.update({"feed_id":feed_id},{"$pull":{"username":self.current_user["user_name"]}},True)
                 self.write("OK")
         else:
             self.write("ERROR")
