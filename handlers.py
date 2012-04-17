@@ -85,12 +85,12 @@ class MainHandler(BaseHandler,Utility):
             "text":self.get_argument("feed"),
             "time":self.get_argument("time")
         }
-        self.db.feeds.save(feed)
+        self.write(str(self.db.feeds.save(feed)))
 
 class UpdateHandler(SocketBaseHandler,Utility):
     LISTENERS = []
     TEMPLATE = """
-    <div class="well">
+    <div id="%s" class="well">
         <div class="user"><img width="50" height="50" src="/p/%s"><b>%s: </b> (<span class="timeago">%s</span>)</div>
         <div class="feed_content">&nbsp;&nbsp;%s</div>
     </div>
@@ -109,7 +109,7 @@ class UpdateHandler(SocketBaseHandler,Utility):
             m = tornado.escape.json_decode(message)
             if m["user_name"] in following:
                 u = self.db.users.find_one({"user_name":m["user_name"]})
-                t = UpdateHandler.TEMPLATE % (u["profile"], m["user_name"], m["time"], tornado.escape.xhtml_escape(m["feed"]))
+                t = UpdateHandler.TEMPLATE % (m["id"],u["profile"], m["user_name"], m["time"], tornado.escape.xhtml_escape(m["feed"]))
                 i.write_message("%s" % t)
             else:
                 print "err"
@@ -302,18 +302,53 @@ class FollowHandler(BaseHandler,Utility):
 
 class BlockHandler(BaseHandler):
     def get(self):
-        pass
-        
+    	username = self.get_argument("username",False)
+    	if username:
+    		blocked_users = self.db.block.find_one({"username":username},{"_id":0})
+    		self.write(tornado.escape.json_encode(blocked_users))
+
     @tornado.web.authenticated
     def post(self):
-        who = self.get_argument("who",False)
-        action = self.get_argument("action","block")
-        if action == "block":
-            if who:
-                self.db.block.save({"who_blocked":self.current_user["user_name"],"blocked":who})
+    	username = self.get_argument("username",False)
+        action = self.get_argument("action",False)
+        if username and action:
+            if action == "block":
+                self.db.block.update({"username":self.current_user["user_name"]},{"$push":{"blocked":username}},True)
                 self.write("OK")
-        elif action == "unblock":
-            if who:
-                self.db.block.remove({"who_blocked":self.current_user["user_name"],"blocked":who})
+            elif action == "unblock":
+                self.db.block.update({"username":self.current_user["user_name"]},{"$pull":{"blocked":username}},True)
                 self.write("OK")
+        else:
+            self.write("ERROR")
         # CONTROL 
+
+class LikeHandler(BaseHandler,Utility):
+    def get(self):
+        username = self.get_argument("username",False)
+        _type = self.get_argument("type",False)
+        if username and _type:
+            if _type == "followers":
+                f = self.get_followers(username)
+
+            if _type == "following":
+                f = self.get_followed_users(username)
+               
+            self.write(tornado.escape.json_encode(f))
+        else:
+            self.write("ERROR")
+
+    @tornado.web.authenticated
+    def post(self):
+        username = self.get_argument("username",False)
+        action = self.get_argument("action",False)
+        if username and action:
+            if action == "follow":
+                self.db.follow.update({"follower":self.current_user["user_name"]},{"$push":{"following":username}},True)
+                self.write("OK")
+            elif action == "unfollow":
+                self.db.follow.update({"follower":self.current_user["user_name"]},{"$pull":{"following":username}},True)
+                self.write("OK")
+        else:
+            self.write("ERROR")
+        # CONTROL
+

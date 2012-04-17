@@ -15,14 +15,16 @@ $(document).ready(function(){
     $("button#submit").click(function(e){
         e.preventDefault();
         $("#time").val(new Date().toISOString());
-        $.post("/",$("#feed_form").serialize());
-        data = {
-            user_name: '{{ current_user["user_name"] }}',
-            feed: $("#feed").val(),
-            time: $.timeago((new Date()).toISOString())
-        }
-        ws.send(JSON.stringify(data));
-
+        $.post("/",$("#feed_form").serialize(),function(feed_id){
+        	data = {
+        		id:feed_id,
+            	user_name: '{{ current_user["user_name"] }}',
+            	feed: $("#feed").val(),
+            	time: $.timeago((new Date()).toISOString())
+        	}
+        	ws.send(JSON.stringify(data));
+        });
+       
         return false;
     });
     

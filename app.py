@@ -35,6 +35,9 @@ urls = [
     #follow & followers
     (r"/follow",handlers.FollowHandler),
 
+    #block & unblock
+    (r"/block",handlers.BlockHandler),
+
     # other users profile page
     (r"/(?P<username>.*)", handlers.UserHandler)
 ]
