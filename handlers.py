@@ -166,12 +166,12 @@ class RegisterHandler(BaseHandler):
             self.write("Birth year required")
             return
 
-        if not self.request.files["profile"][0]["filename"]:
+        try:
+        	file_name = self.request.files["profile"][0]["filename"]
+        	file_body = self.request.files["profile"][0]["body"]
+        except KeyError:
             self.write("Profile picture required")
             return
-        else:
-            file_name = self.request.files["profile"][0]["filename"]
-            file_body = self.request.files["profile"][0]["body"]
 
         file_type = type_of(file_body)
         if not file_type or type_of(file_body) not in ["png","jpeg"]:
