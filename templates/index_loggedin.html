@@ -11,6 +11,21 @@
                     <div class="feed_content">&nbsp;&nbsp;{{ i['text'] }}</div>
                 </div>
             {% end %}
+
+            <div id="pager">
+            	{% set start = int(handler.get_argument("start",0)) %}
+            	{% if start > 0 %}
+            		<a href="/?start={{int(handler.get_argument('start')) + 20}}">< Old feeds</a> |
+            		{% if start > 20 %} 
+            			<a href="/?start={{start - 20}}">New feeds ></a>
+            		{% else %}
+            			<a href="/">New feeds ></a>
+            		{% end %}
+            	{% else %}
+            		<a href="/?start=20">< Old feeds</a>
+            	{% end %}
+            </div>
+
         </div>
     </div>
 {% include footer.html %}

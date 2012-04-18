@@ -66,8 +66,11 @@ class MainHandler(BaseHandler,Utility):
             # bu listeyi cachele. Her mesajda sorgu yaparsa iki güne alırız makineyi elimize
             following = self.get_followed_users(self.current_user["user_name"]).get("following",[])
             following.append(self.current_user["user_name"]) # add myself to list because i must see my feeds
-
-            feeds = self.db.feeds.find({"user":{"$in":following}}).sort("_id",-1)
+            start = int(self.get_argument("start",0))
+            if start > 0:
+            	feeds = self.db.feeds.find({"user":{"$in":following}}).sort("_id",-1).skip(int(start)).limit(20)
+            else:
+            	feeds = self.db.feeds.find({"user":{"$in":following}}).sort("_id",-1).limit(20)
             f = []
             for i in feeds:
                 u = self.db.users.find_one({"user_name":i["user"]})
@@ -219,9 +222,6 @@ class LogoutHandler(BaseHandler):
         self.clear_cookie("current_user")
         self.redirect("/")
 
-class ApiHandler(BaseHandler):
-    def get(self):
-        pass
 
 class UserHandler(BaseHandler):
     def get(self,username):
